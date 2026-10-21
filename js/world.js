@@ -84,6 +84,8 @@ function* intro() {
   yield say('Seagull', 'Oui oui, LE BÉBÉ! HA! The baby made my coffee!');
   yield laughFor(gull, 1.2);
   yield wait(0.6);
+  Music.stop(); Sound.scratch();
+  yield wait(0.7);
   yield say(BEBE, '...', C_BEBE);
   yield throwCup(p, T(11) + 4, T(6) + 4);
   yield wait(0.3);
@@ -102,7 +104,8 @@ function* intro() {
   yield say(BEBE, "Grand-père always said the Adventurers' Guild lies just outside of town.", C_BEBE);
   yield say(BEBE, 'That is where men are made.', C_BEBE);
   setObjective("Find the Adventurers' Guild");
-  yield say(null, 'Move with the arrow keys or WASD. Press SPACE to talk and look at things.');
+  yield say(null, IS_TOUCH ? `Use the arrow pad to move. Press A to talk and look at things.`
+    : `Move with the arrow keys or WASD. Press ${btn('act')} to talk and look at things.`);
 }
 
 // ---------- The guild ----------
@@ -132,7 +135,22 @@ function* meetTranche() {
   yield* itemGet('croissant', 'Le Croissant Éternel', 'Seventy-two layers of folded, buttered protection.');
   F.armed = true; p.sprite = 'bebeArmed';
   yield say(BEBE, 'I will not dishonor them.', C_BEBE);
-  yield say(TRANCHE, 'Two paths lie below us. One leads beneath the sea. The other, into the skies.', C_TRANCHE);
+  yield say(TRANCHE, 'Then show me.', C_TRANCHE);
+  G.enemies.push(spawnEnemy('dummy', 15, 7)); Sound.pop(); sparkle(T(15) + 8, T(7) + 8);
+  yield wait(0.5);
+  yield say(TRANCHE, 'Strike the mannequin. Three times, with conviction.', C_TRANCHE);
+  yield say(null, `Press ${btn('b')} to swing La Baguette de l'Aube.`);
+  F.training = true;
+  setObjective('Strike the mannequin 3 times');
+}
+function* afterTraining() {
+  yield wait(0.4);
+  yield say(TRANCHE, 'Hm. Your claw is steady.', C_TRANCHE);
+  yield say(TRANCHE, 'But not every blow should be answered with a blow. Some must simply be endured.', C_TRANCHE);
+  yield say(null, `Hold ${btn('x')} to raise Le Croissant Éternel. Attacks from the front bounce right off.`);
+  yield say(null, `Press ${btn('menu')} to open your items. Press ${btn('act')} to pick things up.`);
+  yield say(TRANCHE, 'Since the cliff opened, creatures have stirred in the outskirts. Test yourself there, if you wish.', C_TRANCHE);
+  yield say(TRANCHE, 'Or do not. Two paths lie below us. One leads beneath the sea. The other, into the skies.', C_TRANCHE);
   yield say(TRANCHE, 'Neither is the right one. Neither is the wrong one. Choose, and walk.', C_TRANCHE);
   F.metTranche = true;
   setObjective('Choose your path: the sea or the sky');
@@ -165,7 +183,7 @@ function* readShells() {
 const WORLD = {
   maps: {
     cafe: {
-      title: 'Café Coquille',
+      title: 'Café Coquille', music: 'cafe',
       npcs: () => [
         { id: 'palourde', sprite: 'clam', x: T(13), y: T(2), talk: function* () {
           yield say('Mme Palourde', 'You threw a café au lait at a paying customer, Le Bébé.');
@@ -187,7 +205,11 @@ const WORLD = {
     },
 
     town: {
-      title: 'Port-Petit',
+      title: 'Port-Petit', music: 'town',
+      pickups: () => [
+        { item: 'shell', x: 12, y: 18, flag: 'pk_town_shell1' },
+        { item: 'shell', x: 31, y: 19, flag: 'pk_town_shell2' },
+      ],
       npcs: () => [
         { id: 'snail', sprite: 'snail', x: T(36), y: T(7), flip: true, talk: function* () {
           if (!F.clue1) {
@@ -232,7 +254,12 @@ const WORLD = {
     },
 
     outskirts: {
-      title: 'The Outskirts',
+      title: 'The Outskirts', music: 'outskirts',
+      enemies: () => F.armed ? [['urchin', 10, 14], ['urchin', 26, 16], ['urchin', 15, 7], ['gull', 30, 13], ['gull', 8, 7]] : [],
+      pickups: () => [
+        { item: 'macaron', x: 6, y: 16, flag: 'pk_out_mac' },
+        { item: 'shell', x: 21, y: 15, flag: 'pk_out_shell' },
+      ],
       patch: set => { if (F.caveOpen) set(32, 4, 'O'); },
       warps: [
         { x: 0, y: 10, h: 2, to: 'town', tx: 38, ty: 8, keepY: true, face: 'left' },
@@ -269,11 +296,16 @@ const WORLD = {
     },
 
     guild: {
-      title: 'The Hidden Guild',
+      title: 'The Hidden Guild', music: 'guild',
+      enemies: () => F.armed ? [['dummy', 15, 7]] : [],
+      pickups: () => [{ item: 'macaron', x: 17, y: 10, flag: 'pk_guild_mac' }],
       bg: '#1a1420',
       npcs: () => [
         { id: 'tranche', sprite: 'tranche', x: T(9), y: T(3), idleAnim: false, talk: function* () {
+          if (F.training) { yield say(TRANCHE, 'The mannequin, Le Bébé. It will not strike back. Today.', C_TRANCHE); return; }
           if (!F.metTranche) return;
+          const p = G.player;
+          if (p.hp < p.maxHp) { p.hp = p.maxHp; Sound.heal(); sparkle(p.x + 8, p.y + 6); yield say(TRANCHE, 'Sit. Breathe. A wounded crab makes poor decisions.', C_TRANCHE); yield say(null, 'Your hearts are restored.'); }
           yield say(TRANCHE, 'Choose, and walk. The path will tell you the rest.', C_TRANCHE);
         } },
       ],
@@ -303,6 +335,8 @@ const WORLD = {
       onEnter() { if (!F.metTranche) run(meetTranche); },
     },
   },
+
+  onDummyHit(n) { if (F.training && n >= 3) { F.training = false; run(afterTraining); } },
 
   // ---------- Title screen ----------
   start() {

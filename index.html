@@ -20,7 +20,10 @@
   #touch .btn.on { background: rgba(246, 227, 180, 0.6); }
   #touch [data-k=up] { left: 50px; top: 0; } #touch [data-k=down] { left: 50px; bottom: 0; }
   #touch [data-k=left] { left: 0; top: 50px; } #touch [data-k=right] { right: 0; top: 50px; }
-  #touch .act { right: 26px; bottom: 50px; width: 72px; height: 72px; border-radius: 50%; }
+  #touch .face { position: absolute; right: 12px; bottom: 12px; width: 176px; height: 176px; pointer-events: none; }
+  #touch .face .btn { width: 56px; height: 56px; border-radius: 50%; }
+  #touch [data-k=act] { left: 60px; bottom: 0; } #touch [data-k=b] { right: 0; top: 60px; }
+  #touch [data-k=x] { left: 0; top: 60px; } #touch .face [data-k=menu] { left: 64px; top: 4px; width: 48px; height: 32px; border-radius: 8px; font-size: 8px; }
 </style>
 </head>
 <body>
@@ -30,11 +33,17 @@
       <div class="btn" data-k="up">▲</div><div class="btn" data-k="down">▼</div>
       <div class="btn" data-k="left">◀</div><div class="btn" data-k="right">▶</div>
     </div>
-    <div class="btn act" data-k="act">A</div>
+    <div class="face">
+      <div class="btn" data-k="menu">MENU</div>
+      <div class="btn" data-k="x">X</div><div class="btn" data-k="b">B</div>
+      <div class="btn" data-k="act">A</div>
+    </div>
   </div>
   <script src="js/art.js"></script>
   <script src="js/maps.js"></script>
   <script src="js/engine.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/combat.js"></script>
   <script src="js/world.js"></script>
 </body>
 </html>
