@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Le Bébé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦀</text></svg>">
+<style>
+  html, body { margin: 0; height: 100%; background: #14101c; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  body { display: flex; align-items: center; justify-content: center; }
+  #game { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+  #touch { position: fixed; inset: 0; pointer-events: none; display: none; }
+  #touch .pad { position: absolute; left: 18px; bottom: 18px; width: 150px; height: 150px; pointer-events: none; }
+  #touch .btn { position: absolute; pointer-events: auto; width: 50px; height: 50px; border-radius: 10px;
+    background: rgba(246, 227, 180, 0.28); border: 2px solid rgba(246, 227, 180, 0.55); color: #f6e3b4;
+    font: 14px "Press Start 2P", monospace; display: flex; align-items: center; justify-content: center; touch-action: none; }
+  #touch .btn.on { background: rgba(246, 227, 180, 0.6); }
+  #touch [data-k=up] { left: 50px; top: 0; } #touch [data-k=down] { left: 50px; bottom: 0; }
+  #touch [data-k=left] { left: 0; top: 50px; } #touch [data-k=right] { right: 0; top: 50px; }
+  #touch .act { right: 26px; bottom: 50px; width: 72px; height: 72px; border-radius: 50%; }
+</style>
+</head>
+<body>
+  <canvas id="game" aria-label="Le Bébé game"></canvas>
+  <div id="touch">
+    <div class="pad">
+      <div class="btn" data-k="up">▲</div><div class="btn" data-k="down">▼</div>
+      <div class="btn" data-k="left">◀</div><div class="btn" data-k="right">▶</div>
+    </div>
+    <div class="btn act" data-k="act">A</div>
+  </div>
+  <script src="js/art.js"></script>
+  <script src="js/maps.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/world.js"></script>
+</body>
+</html>
